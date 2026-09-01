@@ -2,7 +2,9 @@
 
 A static Bitcoin / Lightning payment-string explainer. Paste `1…` / `3…` / `bc1q` / `bc1p`, a Lightning Address, a BIP-353 name, a BOLT12 offer, or a BOLT11 invoice. The page says in plain English what it looks like.
 
-**Live page:** https://rylyguy.github.io/paste-this-string/
+**Live page:** https://raw.githack.com/rylyguy/paste-this-string/main/index.html
+
+(Official github.io Pages is not enabled yet; that URL 404s.)
 
 Client-side only. No backend, no DNS lookup, no LNURL fetch, no node, no keys. Checksums are not proven.
 
