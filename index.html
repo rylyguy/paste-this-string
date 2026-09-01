@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paste this string</title>
+<style>
+:root{--bg:#f4f1ea;--paper:#fffcf7;--ink:#1c1917;--muted:#57534e;--line:#e7e0d4;--accent:#b45309;--bad:#9f1239}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 Georgia,serif;color:var(--ink);background:var(--bg)}
+.wrap{max-width:40rem;margin:0 auto;padding:1.5rem 1.25rem 4rem}
+h1{font-size:1.65rem;margin:0 0 .4rem}.lede,.muted{color:var(--muted)}
+.banner{background:#ecfdf3;border:1px solid #bbf7d0;color:#14532d;padding:.6rem .8rem;border-radius:8px;margin:0 0 1.25rem}
+textarea{width:100%;min-height:7rem;font:14px ui-monospace,Menlo,monospace;padding:.7rem;border:1px solid #d6d3cd;border-radius:8px;background:var(--paper)}
+.examples{display:flex;flex-wrap:wrap;gap:.4rem;margin:.7rem 0 1.1rem}
+.examples button{font:12px system-ui;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:.28rem .65rem;cursor:pointer}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:.8rem 0}
+.tag{display:inline-block;font:11px system-ui;text-transform:uppercase;background:#fff7ed;color:var(--accent);border-radius:999px;padding:.2rem .5rem}
+.tag.ln{background:#eef2ff;color:#3730a3}.tag.warn{background:#fff1f2;color:var(--bad)}
+.callout{border-left:3px solid var(--accent);padding-left:.75rem;margin:.8rem 0}
+.callout.danger{border-color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{text-align:left;padding:.4rem;border-bottom:1px solid var(--line)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;word-break:break-all}
+a{color:#9a3412}footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+.tip{margin-top:2rem;padding-top:1rem;border-top:1px dashed #d6d3cd}
+.tip-grid{display:grid;gap:1rem}@media(min-width:640px){.tip-grid{grid-template-columns:1fr 1fr}}
+.tip-box{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:.85rem}
+.opt{font:650 11px system-ui;text-transform:uppercase;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Paste this string</h1>
+<p class="lede">Paste a Bitcoin or Lightning payment string. Prefix and format only. Nothing is uploaded.</p>
+<p class="banner">No DNS, LNURL, node, or keys. Optional tips at the bottom. Skip them.</p>
+<label for="paste"><strong>Payment string</strong></label>
+<textarea id="paste" spellcheck="false" placeholder="1 / 3 / bc1q / bc1p / user@domain / lno1 / lnbc"></textarea>
+<div class="examples" id="examples"></div>
+<div id="out"><p class="muted">Paste a string, or tap an example.</p></div>
+<h3>Quick reference</h3>
+<table>
+<thead><tr><th>Looks like</th><th>What it is</th><th>Typical vbytes</th></tr></thead>
+<tbody>
+<tr><td><code>1...</code></td><td>Legacy P2PKH</td><td>out 34; spend ~148</td></tr>
+<tr><td><code>3...</code></td><td>P2SH</td><td>out 32; nested ~91</td></tr>
+<tr><td><code>bc1q</code></td><td>P2WPKH</td><td>out 31; 1-in-2-out ~141</td></tr>
+<tr><td><code>bc1p</code></td><td>Taproot</td><td>out 43; key-path ~57.5</td></tr>
+<tr><td><code>user@domain</code></td><td>Lightning Address</td><td>not on-chain</td></tr>
+<tr><td><code>lno1...</code></td><td>BOLT12 offer (reusable)</td><td>not on-chain</td></tr>
+<tr><td><code>lnbc...</code></td><td>BOLT11 invoice (one-shot)</td><td>not on-chain</td></tr>
+</tbody>
+</table>
+<p class="muted">vbytes: D-Central size reference (20 Jun 2026). Lightning cannot pay a 1/3/bc1 address.</p>
+<p>Sources: <a href="https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki">BIP 21</a>, <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki">173</a>, <a href="https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki">350</a>, <a href="https://github.com/bitcoin/bips/blob/master/bip-0353.mediawiki">353</a>, <a href="https://github.com/lightning/bolts/blob/master/11-payment-encoding.md">BOLT11</a>, <a href="https://github.com/lightning/bolts/blob/master/12-offer-encoding.md">BOLT12</a>, <a href="https://github.com/lnurl/luds/blob/luds/16.md">LUD-16</a>, <a href="https://d-central.tech/bitcoin-transaction-size-reference/">D-Central</a>.</p>
+<section class="tip">
+<h3>Optional thank-you</h3>
+<p class="muted">Skip this. Pick one rail if you want to send something.</p>
+<div class="tip-grid">
+<div class="tip-box"><div class="opt">Optional Lightning</div><p>Strike. Funds stay there.</p><p><code>rylyguy@strike.me</code></p></div>
+<div class="tip-box"><div class="opt">Optional on-chain</div><p>Lightning cannot pay this.</p><p><code>3M5R7D5UwtT6NuGUH6GVunZQZQ3p9DTePg</code></p></div>
+</div>
+</section>
+<footer><p>AI assistance was used to draft this page. Prefix heuristics, not a wallet. Not financial advice.</p></footer>
+</div>
+<script>
+(function(){
+var paste=document.getElementById("paste"), out=document.getElementById("out");
+var EX=[["1 P2PKH","1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"],["3 P2SH","3M5R7D5UwtT6NuGUH6GVunZQZQ3p9DTePg"],["bc1q","bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"],["bc1p","bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0"],["LN address","satoshi@example.com"],["BOLT12","lno1pgqpvggz5d9v8g2q0qsqqgpsq"]];
+var box=document.getElementById("examples");
+EX.forEach(function(e){var b=document.createElement("button");b.type="button";b.textContent=e[0];b.onclick=function(){paste.value=e[1];go();};box.appendChild(b);});
+function esc(s){return String(s).replace(/[&<>\"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+function secret(s,raw){
+if(/^[xyz]pub[1-9A-HJ-NP-Za-km-z]{80,}$/.test(s)||/^[xyz]prv[1-9A-HJ-NP-Za-km-z]{80,}$/.test(s)||/^[5KL][1-9A-HJ-NP-Za-km-z]{50,}$/.test(s))return "key material";
+var w=raw.trim().split(/\s+/);if(w.length>=12&&w.length<=24&&w.every(function(x){return /^[a-z]+$/.test(x);}))return "seed phrase";
+return null;}
+function cls(raw){
+var s=raw.replace(/\s+/g,"");if(!s)return {k:"empty"};
+var sec=secret(s,raw);if(sec)return {k:"secret",d:sec};
+if(/^lightning:/i.test(s))s=s.replace(/^lightning:/i,"");
+if(/^bitcoin:/i.test(s))s=s.replace(/^bitcoin:/i,"").split("?")[0];
+if(s.charAt(0)==="\u20BF"){var n=s.slice(1).split("@");if(n.length===2&&n[1].indexOf(".")>=0)return {k:"bip353"};}
+var L=s.toLowerCase();
+if(/^lno1[02-9ac-hj-np-z]+$/.test(L))return {k:"bolt12"};
+if(/^ln(bcrt|tbs|tb|bc)/i.test(s))return {k:"bolt11"};
+if(/^bc1p/i.test(s)||/^tb1p/i.test(s))return {k:"p2tr"};
+if(/^bc1q/i.test(s)||/^tb1q/i.test(s))return {k:s.length>=60?"p2wsh":"p2wpkh"};
+if(/^1[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(s))return {k:"p2pkh"};
+if(/^3[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(s))return {k:"p2sh"};
+if(/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(s))return {k:"lnaddr"};
+return {k:"unknown"};
+}
+var C={
+p2pkh:["On-chain","Legacy P2PKH","1... address. Output ~34 vB. Lightning cannot pay this."],
+p2sh:["On-chain","P2SH","3... pay-to-script-hash. Nested spend ~91 vB. Lightning cannot pay this."],
+p2wpkh:["On-chain","Native SegWit v0","bc1q ~42 chars. 1-in-2-out ~141 vB. Lightning cannot pay this."],
+p2wsh:["On-chain","P2WSH","Longer bc1q. Lightning cannot pay this."],
+p2tr:["On-chain","Taproot","bc1p. Lightning cannot pay this."],
+lnaddr:["Lightning","Lightning Address","Looks like email (LUD-16). Reusable name. This page does not fetch LNURL."],
+bip353:["DNS","BIP 353","Wallet must DNSSEC-validate. If it fails, do not pay."],
+bolt12:["Lightning","BOLT12 offer","lno1 is reusable. LND was not native as of mid-2026."],
+bolt11:["Lightning","BOLT11 invoice","One-shot. Typically expires in about an hour. Not a tip jar."]
+};
+function go(){
+var c=cls(paste.value);
+if(c.k==="empty"){out.innerHTML="<p class=muted>Paste a string, or tap an example.</p>";return;}
+if(c.k==="secret"){out.innerHTML="<div class=card><span class='tag warn'>Do not paste this</span><h2>This looks like "+esc(c.d)+"</h2><p>Nothing was sent. Treat it as exposed on this device.</p></div>";return;}
+if(c.k==="unknown"){out.innerHTML="<div class=card><span class='tag warn'>Unknown</span><p>Expected a Bitcoin or Lightning payment string.</p></div>";return;}
+var m=C[c.k];var html="<div class=card><span class='tag "+(m[0]==="Lightning"||m[0]==="DNS"?"ln":"")+"'>"+m[0]+"</span><h2>"+m[1]+"</h2><p>"+m[2]+"</p>";
+if(c.k==="bip353")html+="<div class='callout danger'><strong>DNSSEC failure means do not pay.</strong></div>";
+if(c.k==="bolt11")html+="<div class=callout><strong>One-shot.</strong> Use a Lightning Address or BOLT12 offer for a tip jar.</div>";
+if(/^p2/.test(c.k))html+="<div class='callout danger'><strong>Lightning cannot pay this address.</strong></div>";
+html+="<p class=muted>Heuristic only. No checksum proof.</p></div>";
+out.innerHTML=html;
+}
+paste.addEventListener("input",go);
+})();
+</script>
+</body>
+</html>
