@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ln-string-decode — classify LNURL / Lightning Address / BOLT11 / on-chain</title>
+<meta name="description" content="Paste any Bitcoin or Lightning string. Client-side type, BOLT11 expiry, and Lightning Address LNURL reachability. Nothing is uploaded.">
+<style>
+:root{--bg:#f4f1ea;--paper:#fffcf7;--ink:#1c1917;--muted:#57534e;--line:#e7e0d4;--accent:#b45309;--good:#166534;--bad:#9f1239;--ln:#3730a3}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 Georgia,serif;color:var(--ink);background:var(--bg)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.5rem 1.25rem 4rem}
+h1{font-size:1.65rem;margin:0 0 .35rem}h2{font-size:1.2rem;margin:.4rem 0 .5rem}
+.lede,.muted{color:var(--muted)}
+.banner{background:#ecfdf3;border:1px solid #bbf7d0;color:#14532d;padding:.6rem .8rem;border-radius:8px;margin:0 0 1.1rem;font-size:.92rem}
+textarea{width:100%;min-height:7.2rem;font:13px/1.4 ui-monospace,Menlo,monospace;padding:.7rem;border:1px solid #d6d3cd;border-radius:8px;background:var(--paper)}
+.examples{display:flex;flex-wrap:wrap;gap:.4rem;margin:.7rem 0 1.1rem}
+.examples button,.copy{font:12px system-ui;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:.28rem .65rem;cursor:pointer}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:.8rem 0}
+.tag{display:inline-block;font:11px system-ui;letter-spacing:.04em;text-transform:uppercase;background:#fff7ed;color:var(--accent);border-radius:999px;padding:.2rem .5rem}
+.tag.ln{background:#eef2ff;color:var(--ln)}.tag.warn{background:#fff1f2;color:var(--bad)}.tag.ok{background:#ecfdf3;color:var(--good)}
+.callout{border-left:3px solid var(--accent);padding:.1rem 0 .1rem .75rem;margin:.8rem 0}
+.callout.danger{border-color:var(--bad)}.callout.ok{border-color:var(--good)}
+dl{display:grid;grid-template-columns:9rem 1fr;gap:.25rem .75rem;margin:.6rem 0 0;font-size:.95rem}
+dt{color:var(--muted);font:650 12px system-ui}dd{margin:0;word-break:break-word}
+table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{text-align:left;padding:.4rem;border-bottom:1px solid var(--line);vertical-align:top}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;word-break:break-all}
+a{color:#9a3412}footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+.tip{margin-top:2rem;padding-top:1rem;border-top:1px dashed #d6d3cd}
+.tip-grid{display:grid;gap:1rem}@media(min-width:640px){.tip-grid{grid-template-columns:1fr 1fr}}
+.tip-box{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:.85rem}
+.opt{font:650 11px system-ui;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
+#status{min-height:1.2em;font-size:.9rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>ln-string-decode</h1>
+<p class="lede">Paste any Bitcoin or Lightning string. Get type, BOLT11 expiry, and whether a Lightning Address LNURL is reachable. Runs in this browser. Nothing is uploaded.</p>
+</header>
+<p class="banner">Client-side only. LNURL-pay metadata is fetched from the receiver domain (no amount, no invoice mint). Optional tips at the bottom — skip them.</p>
+<label for="paste"><strong>Payment string</strong></label>
+<textarea id="paste" spellcheck="false" placeholder="lnbc… / lnurl1… / name@domain / 1… / 3… / bc1q / bc1p / lno1…"></textarea>
+<div class="examples" id="examples"></div>
+<p id="status"></p>
+<div id="out"><p class="muted">Paste a string, or tap an example.</p></div>
+<h3>What it classifies</h3>
+<table>
+<thead><tr><th>Looks like</th><th>Type</th><th>Extra decode</th></tr></thead>
+<tbody>
+<tr><td><code>name@domain</code></td><td>Lightning Address (LUD-16)</td><td>LNURL-pay fetch: reachable, min/max</td></tr>
+<tr><td><code>lnurl1…</code></td><td>LNURL (bech32 URL)</td><td>Decoded URL + payRequest probe</td></tr>
+<tr><td><code>lnbc…</code> / <code>lntb…</code></td><td>BOLT11 invoice</td><td>Amount, timestamp, expiry, expired?</td></tr>
+<tr><td><code>lno1…</code></td><td>BOLT12 offer</td><td>Reusable (not one-shot)</td></tr>
+<tr><td><code>1 / 3 / bc1q / bc1p</code></td><td>On-chain</td><td>Lightning cannot pay these</td></tr>
+</tbody>
+</table>
+<p class="muted">Checksums are verified for bech32 (BOLT11 / LNURL). Base58 on-chain is prefix-length only. This is not a wallet.</p>
+<section class="tip">
+<h3>Optional thank-you</h3>
+<p class="muted">Skip this. If the decode saved you a failed payment, pick one rail.</p>
+<div class="tip-grid">
+<div class="tip-box">
+<div class="opt">Optional · Lightning</div>
+<p>Strike. Funds stay there.</p>
+<p class="row"><code>rylyguy@strike.me</code> <button type="button" class="copy" data-copy="rylyguy@strike.me">Copy</button></p>
+</div>
+<div class="tip-box">
+<div class="opt">Optional · On-chain</div>
+<p>Lightning cannot pay this.</p>
+<p class="row"><code>3M5R7D5UwtT6NuGUH6GVunZQZQ3p9DTePg</code> <button type="button" class="copy" data-copy="3M5R7D5UwtT6NuGUH6GVunZQZQ3p9DTePg">Copy</button></p>
+</div>
+</div>
+</section>
+<footer>
+<p>Source: <a href="https://github.com/rylyguy/paste-this-string">rylyguy/paste-this-string</a> · also <a href="index.html">paste-this-string</a>. AI assistance was used to draft this page. Not financial advice.</p>
+</footer>
+</div>
+<script>
+(function(){
+var CHARSET="qpzry9x8gf2tvdw0s3jn54khce6mua7l";
+var paste=document.getElementById("paste"), out=document.getElementById("out"), statusEl=document.getElementById("status");
+var seq=0;
+var EX=[
+  ["LN address","rylyguy@strike.me"],
+  ["BOLT11 coffee (expired)","lnbc2500u1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5xysxxatsyp3k7enxv4jsxqzpu9qrsgquk0rl77nj30yxdy8j9vdx85fkpmdla2087ne0xh8nhedh8w27kyke0lp53ut353s06fv3qfegext0eh0ymjpf39tuven09sam30g4vgpfna3rh"],
+  ["On-chain P2SH","3M5R7D5UwtT6NuGUH6GVunZQZQ3p9DTePg"],
+  ["bc1q","bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"],
+  ["BOLT12","lno1pgqpvggz5d9v8g2q0qsqqgpsq"]
+];
+var box=document.getElementById("examples");
+EX.forEach(function(e){var b=document.createElement("button");b.type="button";b.textContent=e[0];b.onclick=function(){paste.value=e[1];go();};box.appendChild(b);});
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];});}
+function polymod(values){var GEN=[0x3b6a57b2,0x26508e6d,0x1ea119fa,0x3d4233dd,0x2a1462b3],chk=1,p,i,top;for(p=0;p<values.length;++p){top=chk>>25;chk=((chk&0x1ffffff)<<5)^values[p];for(i=0;i<5;++i)if((top>>i)&1)chk^=GEN[i];}return chk;}
+function hrpExpand(hrp){var ret=[],i;for(i=0;i<hrp.length;++i)ret.push(hrp.charCodeAt(i)>>5);ret.push(0);for(i=0;i<hrp.length;++i)ret.push(hrp.charCodeAt(i)&31);return ret;}
+function bech32Decode(str){var s=str.trim();if(!s)return null;if(s!==s.toLowerCase()&&s!==s.toUpperCase())return {error:"mixed case"};s=s.toLowerCase();var pos=s.lastIndexOf("1");if(pos<1||pos+7>s.length)return null;var hrp=s.slice(0,pos),data=[],i,d;for(i=pos+1;i<s.length;i++){d=CHARSET.indexOf(s.charAt(i));if(d<0)return null;data.push(d);}var ok=polymod(hrpExpand(hrp).concat(data))===1;return {hrp:hrp,data:data.slice(0,-6),checksum:ok};}
+function convertBits(data,from,to,pad){var acc=0,bits=0,ret=[],maxv=(1<<to)-1,i;for(i=0;i<data.length;i++){acc=(acc<<from)|data[i];bits+=from;while(bits>=to){bits-=to;ret.push((acc>>bits)&maxv);}}if(pad){if(bits)ret.push((acc<<(to-bits))&maxv);}else if(bits>=from||((acc<<(to-bits))&maxv))return null;return ret;}
+function bitsToInt(arr){var n=0,i;for(i=0;i<arr.length;i++)n=n*32+arr[i];return n;}
+function bytesToUtf8(bytes){try{return new TextDecoder("utf-8",{fatal:false}).decode(Uint8Array.from(bytes));}catch(e){return null;}}
+function bytesToHex(bytes){return Array.prototype.map.call(bytes,function(b){return ("0"+b.toString(16)).slice(-2);}).join("");}
+function fmtTime(sec){var d=new Date(sec*1000);return d.toISOString().replace(".000","")+" ("+Math.round(sec)+")";}
+function fmtDur(sec){if(sec<120)return sec+" seconds";if(sec<7200)return Math.round(sec/60)+" minutes";if(sec<172800)return (Math.round(sec/3600*10)/10)+" hours";return Math.round(sec/86400)+" days";}
+function parseAmount(hrp){var m=hrp.match(/^ln(bcrt|tbs|tb|bc)(\d*)([munp])?$/);if(!m)return null;var net=m[1],num=m[2],mul=m[3];var nets={bc:"mainnet",tb:"testnet",tbs:"signet",bcrt:"regtest"};if(!num)return {network:nets[net]||net,amountSat:null,amountMsat:null,any:true};var n=parseInt(num,10),msat;if(!mul)msat=n*1e11;else if(mul==="m")msat=n*1e8;else if(mul==="u")msat=n*1e5;else if(mul==="n")msat=n*100;else if(mul==="p")msat=n/10;return {network:nets[net]||net,amountSat:msat/1000,amountMsat:msat,any:false};}
+function parseBolt11(raw){var s=raw.replace(/\s+/g,"").replace(/^lightning:/i,"");var dec=bech32Decode(s);if(!dec||dec.error)return {error:dec&&dec.error||"not bech32"};var amt=parseAmount(dec.hrp);if(!amt)return {error:"bad BOLT11 prefix "+dec.hrp};var d=dec.data;if(d.length<7+104)return {error:"too short for BOLT11"};var ts=bitsToInt(d.slice(0,7));var sigStart=d.length-104;var fields=d.slice(7,sigStart);var tags={},i=0;while(i+3<=fields.length){var type=fields[i];var len=fields[i+1]*32+fields[i+2];i+=3;if(i+len>fields.length)break;var chunk=fields.slice(i,i+len);i+=len;if(type===6)tags.expiry=bitsToInt(chunk);if(type===13){var b=convertBits(chunk,5,8,false);if(b)tags.description=bytesToUtf8(b);}if(type===1){var pb=convertBits(chunk,5,8,false);if(pb&&pb.length===32)tags.paymentHash=bytesToHex(pb);}}var expiry=tags.expiry!=null?tags.expiry:3600;var expiresAt=ts+expiry;var now=Date.now()/1000;return {ok:true,checksum:dec.checksum,network:amt.network,amountSat:amt.amountSat,amountMsat:amt.amountMsat,any:amt.any,timestamp:ts,expirySec:expiry,expiryDefault:tags.expiry==null,expiresAt:expiresAt,expired:now>expiresAt,remaining:Math.max(0,Math.round(expiresAt-now)),description:tags.description||null,paymentHash:tags.paymentHash||null};}
+function decodeLnurl(raw){var s=raw.replace(/\s+/g,"").replace(/^lightning:/i,"");var dec=bech32Decode(s);if(!dec||dec.hrp!=="lnurl")return null;var bytes=convertBits(dec.data,5,8,false);if(!bytes)return {checksum:dec.checksum,error:"bit conversion failed"};var url=bytesToUtf8(bytes);return {checksum:dec.checksum,url:url};}
+function secret(s,raw){var L=s.toLowerCase();if(/^nsec1[02-9ac-hj-np-z]+$/.test(L))return "Nostr nsec";if(/^[xyz]prv[1-9A-HJ-NP-Za-km-z]{80,}$/.test(s)||/^[5KL][1-9A-HJ-NP-Za-km-z]{50,}$/.test(s))return "key material";if(/^[xyz]pub[1-9A-HJ-NP-Za-km-z]{80,}$/.test(s))return "extended key material";var w=raw.trim().split(/\s+/);if(w.length>=12&&w.length<=24&&w.every(function(x){return /^[a-z]+$/.test(x);}))return "seed phrase";return null;}
+function cls(raw){var s=raw.replace(/\s+/g,"");if(!s)return {k:"empty"};var sec=secret(s,raw);if(sec)return {k:"secret",d:sec};if(/^lightning:/i.test(s))s=s.replace(/^lightning:/i,"");if(/^bitcoin:/i.test(s))s=s.replace(/^bitcoin:/i,"").split("?")[0];if(s.charAt(0)==="\u20BF"){var n=s.slice(1).split("@");if(n.length===2&&n[1].indexOf(".")>=0)return {k:"bip353",user:n[0],dom:n[1]};}var L=s.toLowerCase();if(/^lnurl1[02-9ac-hj-np-z]+$/.test(L)){var lu=decodeLnurl(s);return {k:"lnurl",raw:s,lnurl:lu};}if(/^lno1[02-9ac-hj-np-z]+$/.test(L))return {k:"bolt12"};if(/^ln(bcrt|tbs|tb|bc)/i.test(s)){var b11=parseBolt11(s);return {k:"bolt11",parsed:b11};}if(/^bc1p/i.test(s)||/^tb1p/i.test(s))return {k:"p2tr",s:s};if(/^bc1q/i.test(s)||/^tb1q/i.test(s))return {k:s.length>=60?"p2wsh":"p2wpkh",s:s};if(/^1[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(s))return {k:"p2pkh",s:s};if(/^3[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(s))return {k:"p2sh",s:s};if(/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(s)){var parts=s.split("@");return {k:"lnaddr",user:parts[0],dom:parts[1],url:"https://"+parts[1].toLowerCase()+"/.well-known/lnurlp/"+encodeURIComponent(parts[0])};}return {k:"unknown"};}
+function dl(rows){var h="<dl>";rows.forEach(function(r){if(r[1]==null||r[1]==="")return;h+="<dt>"+esc(r[0])+"</dt><dd>"+r[1]+"</dd>";});return h+"</dl>";}
+function card(tag,tagClass,title,body){return "<div class=card><span class='tag "+tagClass+"'>"+esc(tag)+"</span><h2>"+title+"</h2>"+body+"</div>";}
+function satStr(n){if(n==null)return "unspecified";if(Math.abs(n-Math.round(n))<1e-9)return Math.round(n).toLocaleString()+" sat";return n+" sat";}
+function msatStr(ms){if(ms==null)return "";if(ms>=1000&&ms%1000===0)return satStr(ms/1000);return ms.toLocaleString()+" msat";}
+function probeNote(){return "<p class=muted>This page fetches LNURL-pay metadata only (GET). It does not request an invoice and does not send sats.</p>";}
+function renderPay(json,url,extra){var min=json.minSendable,max=json.maxSendable;var rows=[["Endpoint","<code>"+esc(url)+"</code>"],["tag",esc(json.tag||"?")],["reachable","<strong>yes</strong>"],["minSendable",msatStr(min)+(min!=null?" ("+satStr(min/1000)+")":"")],["maxSendable",msatStr(max)+(max!=null?" ("+satStr(max/1000)+")":"")],["allowsNostr",json.allowsNostr?"yes":"no"],["comment allowed",json.commentAllowed!=null?String(json.commentAllowed):""]];if(json.callback){try{rows.push(["callback host",esc(new URL(json.callback).host)]);}catch(e){}}var html=dl(rows);if(json.tag&&json.tag!=="payRequest")html+="<div class='callout danger'>Not a payRequest (tag="+esc(json.tag)+"). This tool does not follow withdraw/auth callbacks.</div>";else html+="<div class='callout ok'><strong>LNURL reachable.</strong> A wallet can mint a fresh BOLT11 from this. It is not itself an invoice and has no hour-long fuse.</div>";if(extra)html+=extra;html+=probeNote();return html;}
+async function fetchLnurl(url,my){statusEl.textContent="Fetching LNURL-pay metadata…";try{if(!/^https:\/\//i.test(url))return {ok:false,reason:"not https"};if(/\.onion(\/|$)/i.test(url))return {ok:false,reason:"onion — browser cannot fetch"};if(/[?&]amount=/i.test(url))return {ok:false,reason:"looks like a callback with amount — not fetched (would mint an invoice)"};var ctrl=typeof AbortController!=="undefined"?new AbortController():null;var t=ctrl?setTimeout(function(){ctrl.abort();},8000):null;var r=await fetch(url,{method:"GET",mode:"cors",credentials:"omit",signal:ctrl?ctrl.signal:undefined});if(t)clearTimeout(t);if(my!==seq)return {stale:true};if(!r.ok)return {ok:false,reason:"HTTP "+r.status,url:url};var json=await r.json();if(my!==seq)return {stale:true};return {ok:true,json:json,url:url};}catch(e){if(my!==seq)return {stale:true};return {ok:false,reason:(e&&e.name==="AbortError")?"timeout":("browser fetch failed ("+(e&&e.message||e)+"). Often CORS — the address may still work in a wallet."),url:url};}}
+async function go(){var my=++seq;statusEl.textContent="";var c=cls(paste.value);if(c.k==="empty"){out.innerHTML="<p class=muted>Paste a string, or tap an example.</p>";return;}if(c.k==="secret"){out.innerHTML=card("Do not paste this","warn","This looks like "+esc(c.d),"<p>Nothing was sent. Treat it as exposed on this device. Never paste nsec, seeds, or private keys.</p>");return;}if(c.k==="unknown"){out.innerHTML=card("Unknown","warn","Not a known payment string","<p>Expected LNURL, Lightning Address, BOLT11, BOLT12, or on-chain 1 / 3 / bc1q / bc1p.</p>");return;}
+if(c.k==="bolt11"){var p=c.parsed;if(!p||p.error){out.innerHTML=card("BOLT11?","warn","Could not decode invoice","<p>"+esc(p&&p.error||"parse error")+"</p>");return;}var rows=[["type","BOLT11 invoice (one-shot)"],["network",esc(p.network)],["checksum",p.checksum?"valid bech32":"<span class=tag warn>invalid</span>"],["amount",p.any?"any (unspecified)":satStr(p.amountSat)+(p.amountMsat?" / "+Math.round(p.amountMsat).toLocaleString()+" msat":"")],["created",fmtTime(p.timestamp)],["expiry",fmtDur(p.expirySec)+(p.expiryDefault?" (BOLT11 default 3600s)":"")],["expires",fmtTime(p.expiresAt)],["status",p.expired?"<span class='tag warn'>expired</span>":"<span class='tag ok'>valid for "+fmtDur(p.remaining)+"</span>"],["description",p.description?esc(p.description):""],["payment hash",p.paymentHash?"<code>"+esc(p.paymentHash)+"</code>":""]];var body=dl(rows);if(p.expired)body+="<div class='callout danger'><strong>Expired.</strong> Honest wallets refuse this. A Lightning Address or BOLT12 offer is the reusable tip-jar form.</div>";else body+="<div class=callout><strong>One-shot.</strong> After expiry this invoice is dead. Not a reusable tip jar.</div>";body+="<p class=muted>Signature recovery is not performed. Checksum + tagged fields only.</p>";out.innerHTML=card("Lightning","ln","BOLT11 invoice",body);return;}
+if(c.k==="lnaddr"){var body0=dl([["type","Lightning Address (LUD-16)"],["name",esc(c.user)],["domain",esc(c.dom)],["LNURL-pay","<code>"+esc(c.url)+"</code>"],["expiry","n/a — each pay mints a fresh BOLT11"]])+"<p class=muted>Reusable name. Not an invoice. Lightning cannot pay a 1/3/bc1 address with this.</p>";out.innerHTML=card("Lightning","ln","Lightning Address",body0+"<p class=muted>Checking reachability…</p>");var res=await fetchLnurl(c.url,my);if(res.stale)return;if(res.ok){out.innerHTML=card("Lightning","ln","Lightning Address",body0+renderPay(res.json,c.url,""));}else{out.innerHTML=card("Lightning","ln","Lightning Address",body0+"<div class=callout><strong>LNURL not confirmed in this browser.</strong> "+esc(res.reason)+"</div>"+probeNote());}statusEl.textContent="";return;}
+if(c.k==="lnurl"){var lu=c.lnurl||{};var body1=dl([["type","LNURL (bech32-encoded URL)"],["checksum",lu.checksum?"valid bech32":"<span class=tag warn>invalid</span>"],["decoded",lu.url?"<code>"+esc(lu.url)+"</code>":esc(lu.error||"decode failed")],["expiry","depends on the minted invoice, not the LNURL"]]);if(!lu.url){out.innerHTML=card("LNURL","ln","LNURL",body1);return;}out.innerHTML=card("LNURL","ln","LNURL",body1+"<p class=muted>Checking reachability…</p>");var res2=await fetchLnurl(lu.url,my);if(res2.stale)return;if(res2.ok)out.innerHTML=card("LNURL","ln","LNURL",body1+renderPay(res2.json,lu.url,""));else out.innerHTML=card("LNURL","ln","LNURL",body1+"<div class=callout><strong>Not confirmed in this browser.</strong> "+esc(res2.reason)+"</div>"+probeNote());statusEl.textContent="";return;}
+if(c.k==="bolt12"){out.innerHTML=card("Lightning","ln","BOLT12 offer","<p>Reusable offer (<code>lno1</code>). Not a one-shot invoice. LND native support was still uneven as of mid-2026. Lightning cannot pay a 1/3/bc1 address with this.</p><p class=muted>Offer TLV decode is not implemented in this page.</p>");return;}
+if(c.k==="bip353"){out.innerHTML=card("DNS","ln","BIP 353 name","<p><code>₿"+esc(c.user)+"@"+esc(c.dom)+"</code>. A wallet must DNSSEC-validate. This page does not resolve DNS.</p><div class='callout danger'><strong>If DNSSEC fails, do not pay.</strong></div>");return;}
+var onchain={p2pkh:["Legacy P2PKH","<code>1…</code> address. Output ~34 vB."],p2sh:["P2SH","<code>3…</code> pay-to-script-hash. Nested spend ~91 vB."],p2wpkh:["Native SegWit v0 (P2WPKH)","<code>bc1q</code> ~42 chars. 1-in-2-out ~141 vB."],p2wsh:["Native SegWit script (P2WSH)","Longer <code>bc1q</code>."],p2tr:["Taproot (P2TR)","<code>bc1p</code>. Lightning cannot pay this."]};
+var m=onchain[c.k];out.innerHTML=card("On-chain","",m[0],"<p>"+m[1]+"</p><div class='callout danger'><strong>Lightning cannot pay this address.</strong> Different layer. A Lightning wallet has nothing to route to.</div><p class=muted>Prefix heuristic. No Base58 checksum proof.</p>");}
+paste.addEventListener("input",function(){go();});
+document.querySelectorAll("[data-copy]").forEach(function(btn){btn.onclick=function(){var t=btn.getAttribute("data-copy");if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){btn.textContent="Copied";setTimeout(function(){btn.textContent="Copy";},1000);});};});
+})();
+</script>
+</body>
+</html>
