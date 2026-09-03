@@ -4,79 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paste this string — LNURL / Lightning Address / BOLT11 / on-chain decoder</title>
-<meta name="description" content="Paste any Bitcoin or Lightning string. Client-side type, BOLT11 expiry, and Lightning Address LNURL reachability. Nothing is uploaded.">
-<style>
-:root{--bg:#f4f1ea;--paper:#fffcf7;--ink:#1c1917;--muted:#57534e;--line:#e7e0d4;--accent:#b45309;--good:#166534;--bad:#9f1239;--ln:#3730a3}
-*{box-sizing:border-box}body{margin:0;font:16px/1.5 Georgia,serif;color:var(--ink);background:var(--bg)}
-.wrap{max-width:42rem;margin:0 auto;padding:1.5rem 1.25rem 4rem}
-h1{font-size:1.65rem;margin:0 0 .35rem}h2{font-size:1.2rem;margin:.4rem 0 .5rem}
-.lede,.muted{color:var(--muted)}
-.banner{background:#ecfdf3;border:1px solid #bbf7d0;color:#14532d;padding:.6rem .8rem;border-radius:8px;margin:0 0 1.1rem;font-size:.92rem}
-textarea{width:100%;min-height:7.2rem;font:13px/1.4 ui-monospace,Menlo,monospace;padding:.7rem;border:1px solid #d6d3cd;border-radius:8px;background:var(--paper)}
-.examples{display:flex;flex-wrap:wrap;gap:.4rem;margin:.7rem 0 1.1rem}
-.examples button,.copy{font:12px system-ui;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:.28rem .65rem;cursor:pointer}
-.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:.8rem 0}
-.tag{display:inline-block;font:11px system-ui;letter-spacing:.04em;text-transform:uppercase;background:#fff7ed;color:var(--accent);border-radius:999px;padding:.2rem .5rem}
-.tag.ln{background:#eef2ff;color:var(--ln)}.tag.warn{background:#fff1f2;color:var(--bad)}.tag.ok{background:#ecfdf3;color:var(--good)}
-.callout{border-left:3px solid var(--accent);padding:.1rem 0 .1rem .75rem;margin:.8rem 0}
-.callout.danger{border-color:var(--bad)}.callout.ok{border-color:var(--good)}
-dl{display:grid;grid-template-columns:9rem 1fr;gap:.25rem .75rem;margin:.6rem 0 0;font-size:.95rem}
-dt{color:var(--muted);font:650 12px system-ui}dd{margin:0;word-break:break-word}
-table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{text-align:left;padding:.4rem;border-bottom:1px solid var(--line);vertical-align:top}
-code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;word-break:break-all}
-a{color:#9a3412}footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
-.tip{margin-top:2rem;padding-top:1rem;border-top:1px dashed #d6d3cd}
-.tip-grid{display:grid;gap:1rem}@media(min-width:640px){.tip-grid{grid-template-columns:1fr 1fr}}
-.tip-box{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:.85rem}
-.opt{font:650 11px system-ui;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.row{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
-#status{min-height:1.2em;font-size:.9rem;color:var(--muted)}
-</style>
+<meta http-equiv="refresh" content="0; url=ln-string-decode.html">
+<link rel="canonical" href="ln-string-decode.html">
 </head>
 <body>
-<div class="wrap">
-<header>
-<h1>Paste this string</h1>
-<p class="lede">Paste any Bitcoin or Lightning string. Get type, BOLT11 expiry, and whether a Lightning Address LNURL is reachable. Runs in this browser. Nothing is uploaded.</p>
-</header>
-<p class="banner">Client-side only. LNURL-pay metadata is fetched from the receiver domain (no amount, no invoice mint). Optional tips at the bottom — skip them.</p>
-<label for="paste"><strong>Payment string</strong></label>
-<textarea id="paste" spellcheck="false" placeholder="lnbc… / lnurl1… / name@domain / 1… / 3… / bc1q / bc1p / lno1…"></textarea>
-<div class="examples" id="examples"></div>
-<p id="status"></p>
-<div id="out"><p class="muted">Paste a string, or tap an example.</p></div>
-<h3>What it classifies</h3>
-<table>
-<thead><tr><th>Looks like</th><th>Type</th><th>Extra decode</th></tr></thead>
-<tbody>
-<tr><td><code>name@domain</code></td><td>Lightning Address (LUD-16)</td><td>LNURL-pay fetch: reachable, min/max</td></tr>
-<tr><td><code>lnurl1…</code></td><td>LNURL (bech32 URL)</td><td>Decoded URL + payRequest probe</td></tr>
-<tr><td><code>lnbc…</code> / <code>lntb…</code></td><td>BOLT11 invoice</td><td>Amount, timestamp, expiry, expired?</td></tr>
-<tr><td><code>lno1…</code></td><td>BOLT12 offer</td><td>Reusable (not one-shot)</td></tr>
-<tr><td><code>1 / 3 / bc1q / bc1p</code></td><td>On-chain</td><td>Lightning cannot pay these</td></tr>
-</tbody>
-</table>
-<p class="muted">Checksums are verified for bech32 (BOLT11 / LNURL). Base58 on-chain is prefix-length only. This is not a wallet.</p>
-<section class="tip">
-<h3>Optional thank-you</h3>
-<p class="muted">Skip this. If the decode saved you a failed payment, pick one rail.</p>
-<div class="tip-grid">
-<div class="tip-box">
-<div class="opt">Optional · Lightning</div>
-<p>Strike. Funds stay there.</p>
-<p class="row"><code>rylyguy@strike.me</code> <button type="button" class="copy" data-copy="rylyguy@strike.me">Copy</button></p>
-</div>
-<div class="tip-box">
-<div class="opt">Optional · On-chain</div>
-<p>Lightning cannot pay this.</p>
-<p class="row"><code>3M5R7D5UwtT6NuGUH6GVunZQZQ3p9DTePg</code> <button type="button" class="copy" data-copy="3M5R7D5UwtT6NuGUH6GVunZQZQ3p9DTePg">Copy</button></p>
-</div>
-</div>
-</section>
-<footer>
-<p>Source: <a href="https://github.com/rylyguy/paste-this-string">rylyguy/paste-this-string</a> · dedicated decoder: <a href="ln-string-decode.html">ln-string-decode</a>. AI assistance was used to draft this page. Not financial advice.</p>
-</footer>
-</div>
-<script src="ln-string-decode.js"></script>
+<p>Moved to <a href="ln-string-decode.html">ln-string-decode</a> (same classifier: LNURL / Lightning Address / BOLT11 expiry / on-chain).</p>
+<p>Direct: <a href="https://raw.githack.com/rylyguy/paste-this-string/main/ln-string-decode.html">raw.githack decoder</a></p>
 </body>
 </html>
